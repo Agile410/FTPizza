@@ -23,6 +23,25 @@ namespace FTPizza
             string ftpPassword = Console.ReadLine();
 
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ftpUrl);
+            request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
+            try
+            {
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                Stream responseStream = response.GetResponseStream();
+                StreamReader reader = new StreamReader(responseStream);
+                Console.WriteLine(reader.ReadToEnd());
+
+                reader.Close();
+                response.Close();
+            }
+            catch (WebException e)
+            {
+
+                Console.WriteLine(e.ToString());
+            }
+           
         }
     }
 }
