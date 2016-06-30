@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FTPizza
 {
-    class Program
+    class FTPizza
     {
         static void Main(string[] args)
         {
