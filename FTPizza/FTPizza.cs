@@ -63,7 +63,7 @@ namespace FTPizza
                 Console.WriteLine(reader.ReadToEnd());
 
                 reader.Close();
-                response.Close()
+                response.Close();
             }
             catch (WebException e)
             {
