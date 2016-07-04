@@ -49,28 +49,6 @@ namespace FTPizza
                         break;
                 }
             }
-            //Refractor into List
-            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + ftpUrl);
-            request.Credentials = new NetworkCredential(ftpUsername, ftpPassword);
-            try
-            {
-                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                request.KeepAlive = true;
-
-                Stream responseStream = response.GetResponseStream();
-                StreamReader reader = new StreamReader(responseStream);
-                Console.WriteLine(reader.ReadToEnd());
-
-                reader.Close();
-                response.Close();
-            }
-            catch (WebException e)
-            {
-
-                Console.WriteLine(e.ToString());
-            }
-           
         }
     }
 }
