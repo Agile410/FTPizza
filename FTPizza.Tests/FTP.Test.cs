@@ -7,7 +7,7 @@ namespace FTPizza.Tests
     public class UnitTest1
     {
         [TestMethod]
-        public void TestIfDirectoryExists()
+        public void TestMethod1()
         {
         }
     }
