@@ -29,8 +29,6 @@ namespace FTPizza
                 Console.WriteLine("Select which operation to perform: ");
                 Console.WriteLine("(L)ist, (G)et, (P)ut, (Q)uit:");
                 string input = Console.ReadLine();
-                //Connect to ftp client and keep it open
-                client.connect();
 
                 switch (input.ToLower())
                 {
