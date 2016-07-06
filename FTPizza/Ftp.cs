@@ -18,7 +18,7 @@ namespace FTPizza
             _userPass = userPass;
             _userUrl  = userUrl;
 
-            //Refractor into List
+            // TODO: Refractor into List
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
             request.Credentials = new NetworkCredential(_userName, _userPass);
             try
@@ -37,13 +37,9 @@ namespace FTPizza
 
         internal void list()
         {
-            throw new NotImplementedException();
-        }
-
-        internal void get()
-        {
             string line;
-            //Print list of directories
+
+            // Print list of directories
             try
             {
                 Console.WriteLine(response.StatusCode);
@@ -51,12 +47,17 @@ namespace FTPizza
                 {
                     Console.WriteLine(line);
                 }
-                
+
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        internal void get()
+        {
+            throw new NotImplementedException();
         }
         internal void put()
         {
