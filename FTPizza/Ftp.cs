@@ -34,8 +34,9 @@ namespace FTPizza
                 Console.WriteLine(e.ToString());
             }
         }
+        
 
-        internal void list()
+        public void list()
         {
             string line;
 
@@ -55,16 +56,16 @@ namespace FTPizza
             }
         }
 
-        internal void get()
+        public void get()
         {
             throw new NotImplementedException();
         }
-        internal void put()
+        public void put()
         {
             throw new NotImplementedException();
         }
 
-        internal void quit()
+        public void quit()
         {
             throw new NotImplementedException();
         }
