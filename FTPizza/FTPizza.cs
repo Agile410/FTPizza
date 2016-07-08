@@ -27,13 +27,16 @@ namespace FTPizza
             {
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
                 Console.WriteLine("Select which operation to perform: ");
-                Console.WriteLine("(L)ist, (G)et, (P)ut, (Q)uit:");
+                Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (Q)uit:");
                 string input = Console.ReadLine();
 
                 switch (input.ToLower())
                 {
                     case "l":
                         client.list();
+                        break;
+                    case "lo":
+                        client.Local();
                         break;
                     case "g":
                         client.get();
