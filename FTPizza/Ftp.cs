@@ -10,13 +10,13 @@ namespace FTPizza
         private StreamReader reader;
         public string _userName { get; set; }
         public string _userPass { get; set; }
-        public string _userUrl  { get; set; }
+        public string _userUrl { get; set; }
 
         public Ftp(string userName, string userPass, string userUrl)
         {
             _userName = userName;
             _userPass = userPass;
-            _userUrl  = userUrl;
+            _userUrl = userUrl;
 
             // TODO: Refractor into List
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
@@ -34,7 +34,7 @@ namespace FTPizza
                 Console.WriteLine(e.ToString());
             }
         }
-        
+
 
         public void list()
         {
@@ -69,5 +69,11 @@ namespace FTPizza
         {
             throw new NotImplementedException();
         }
+
+        public void Local()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }
