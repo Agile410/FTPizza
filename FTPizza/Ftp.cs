@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 
@@ -58,8 +59,32 @@ namespace FTPizza
 
         public void get()
         {
-            throw new NotImplementedException();
+            string item = ParseItem();
+
+            var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + item);
+            request.Method = WebRequestMethods.Ftp.DownloadFile;
+            request.UseBinary = false;
+
+            request.Credentials = new NetworkCredential(_userName, _userPass);
+
+            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                using (FileStream writer = new FileStream(item, FileMode.Create))
+                {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+
+                    while (bytesRead > 0)
+                    {
+                        writer.Write(buffer, 0, bytesRead);
+                        bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                    }
+                }
+            }
         }
+
         public void put()
         {
             throw new NotImplementedException();
@@ -75,5 +100,9 @@ namespace FTPizza
             throw new NotImplementedException();
         }
 
+        private string ParseItem()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
