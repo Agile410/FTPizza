@@ -12,7 +12,6 @@ namespace FTPizza
     {
         static void Main(string[] args)
         {
-
             Console.WriteLine("Enter the url for the FTP Server:");
             string ftpUrl = Console.ReadLine();
 
@@ -22,6 +21,7 @@ namespace FTPizza
             Console.WriteLine("Enter the password for the FTP Server:");
             string ftpPassword = Console.ReadLine();
 
+            Console.Clear();
 
             while (true)
             {
