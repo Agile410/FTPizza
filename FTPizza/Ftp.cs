@@ -59,7 +59,41 @@ namespace FTPizza
 
         public void get()
         {
-            string item = ParseItem();
+            string item;
+            string line;
+            bool found = false;
+            
+            // TODO: Refactor for multiple files.
+            Console.WriteLine("Enter the name of file you wish to retrieve:");
+            item = Console.ReadLine();
+
+            try
+            {
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if(line.Contains(item)) 
+                    {
+                        Console.WriteLine("FOUND IT!!!");
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    throw new Exception("Unable to locate file: " + item);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            
+            // TODO: Error handling for non-existent file
+
+            // TODO: Parse for multiple files
+            //string item = ParseItem();
 
             var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + item);
             request.Method = WebRequestMethods.Ftp.DownloadFile;
