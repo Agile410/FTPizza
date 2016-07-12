@@ -72,6 +72,10 @@ namespace FTPizza
             {
                 item = ParseItem(item);
                 downloadList.Add(item);
+                if (item != null)
+                {
+                    downloadList.Add(item);
+                }
             }
 
             listLength = downloadList.Count;
