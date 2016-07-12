@@ -18,8 +18,13 @@ namespace FTPizza
             _userName = userName;
             _userPass = userPass;
             _userUrl = userUrl;
-
-            // TODO: Refractor into List
+        }
+        
+        /// <summary>
+        /// Validate user info trying to get responce from server
+        /// </summary>
+        public bool ValidateUserDestination()
+        {
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
             request.Credentials = new NetworkCredential(_userName, _userPass);
             try
@@ -27,15 +32,15 @@ namespace FTPizza
                 request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
                 request.KeepAlive = true;
                 response = (FtpWebResponse)request.GetResponse();
-                Stream responseStream = response.GetResponseStream();
-                reader = new StreamReader(responseStream);
+                response.Close();
+                return true;
             }
             catch (WebException e)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
+                return false;
             }
         }
-
 
         public void list()
         {
