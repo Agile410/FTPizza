@@ -8,28 +8,35 @@ namespace FTPizza
 {
     public class Ftp
     {
-        private FtpWebResponse response;
-        private StreamReader reader;
         public string _userName { get; set; }
         public string _userPass { get; set; }
         public string _userUrl { get; set; }
+        public List<string> currentDirFiles;
 
         public Ftp(string userName, string userPass, string userUrl)
         {
             _userName = userName;
             _userPass = userPass;
             _userUrl = userUrl;
+            currentDirFiles = new List<string>();
 
-            // TODO: Refractor into List
+            // TODO: Refractor into new function that updates when we change DIR
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
             request.Credentials = new NetworkCredential(_userName, _userPass);
             try
             {
-                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.KeepAlive = true;
-                response = (FtpWebResponse)request.GetResponse();
+                var response = (FtpWebResponse)request.GetResponse();
                 Stream responseStream = response.GetResponseStream();
-                reader = new StreamReader(responseStream);
+                var reader = new StreamReader(responseStream);
+
+                string line = reader.ReadLine();
+                while (!string.IsNullOrEmpty(line))
+                {
+                    currentDirFiles.Add(line);
+                    line = reader.ReadLine();
+                }
             }
             catch (WebException e)
             {
@@ -66,12 +73,11 @@ namespace FTPizza
             Console.WriteLine("To download files, enter one filename per line." +
                 "\nWhen you are done, press 'CTRL+z, and then 'Enter'.");
 
-            List<string> downloadList = new List<string>();
+            var downloadList = new List<string>();
 
             while ((item = Console.ReadLine()) != null)
             {
                 item = ParseItem(item);
-                downloadList.Add(item);
                 if (item != null)
                 {
                     downloadList.Add(item);
@@ -90,28 +96,36 @@ namespace FTPizza
 
             for (int i = 0; i < listLength; i++)
             {
-                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                               + downloadList[i]);
-                request.Method = WebRequestMethods.Ftp.DownloadFile;
-                request.UseBinary = false;
-
-                request.Credentials = new NetworkCredential(_userName, _userPass);
-
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
-                using (Stream responseStream = response.GetResponseStream())
+                try
                 {
-                    using (FileStream writer = new FileStream(downloadList[i], FileMode.Create))
-                    {
-                        byte[] buffer = new byte[2048];
-                        int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                    var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
+                                                                          + downloadList[i]);
+                    request.Method = WebRequestMethods.Ftp.DownloadFile;
+                    request.UseBinary = false;
 
-                        while (bytesRead > 0)
+                    request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                    using (Stream responseStream = response.GetResponseStream())
+                    {
+                        using (FileStream writer = new FileStream(downloadList[i], FileMode.Create))
                         {
-                            writer.Write(buffer, 0, bytesRead);
-                            bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                            byte[] buffer = new byte[2048];
+                            int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+
+                            while (bytesRead > 0)
+                            {
+                                writer.Write(buffer, 0, bytesRead);
+                                bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                            }
                         }
                     }
+                }
+                catch (Exception)
+                {
+
+                    throw;
                 }
             }
         }
