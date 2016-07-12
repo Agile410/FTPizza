@@ -18,7 +18,6 @@ namespace FTPizza
             _userName = userName;
             _userPass = userPass;
             _userUrl = userUrl;
-            currentDirFiles = new List<string>();
 
             fetchCurrentDirectoryItems();
         }
@@ -163,14 +162,11 @@ namespace FTPizza
                     throw new Exception("Malformatted file: " + item);
                 }
 
-                foreach (string file in currentDirFiles)
-                { 
-                    if (file.Contains(item))
-                    {
-                        Console.WriteLine("FOUND IT!!!");
-                        found = true;
-                        return item;
-                    }
+                if (currentDirFiles.Contains(item))
+                {
+                    Console.WriteLine("FOUND IT!!!");
+                    found = true;
+                    return item;
                 }
 
                 if (!found)
