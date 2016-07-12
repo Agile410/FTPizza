@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
@@ -60,40 +61,30 @@ namespace FTPizza
         public void get()
         {
             string item;
-            string line;
-            bool found = false;
-            
+            int listLength;
+
             // TODO: Refactor for multiple files.
-            Console.WriteLine("Enter the name of file you wish to retrieve:");
-            item = Console.ReadLine();
+            Console.WriteLine("To download files, enter one filename per line." +
+                "\nWhen you are done, press 'CTRL+z, and then 'Enter'.");
+            //Console.WriteLine("Enter the name of file you wish to retrieve:");
 
-            try
+            List<string> downloadList = new List<string>();
+
+            while ((item = Console.ReadLine()) != null)
             {
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if(line.Contains(item)) 
-                    {
-                        Console.WriteLine("FOUND IT!!!");
-                        found = true;
-                        break;
-                    }
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-
+                item = ParseItem(item);
+                downloadList.Add(item);
             }
-            catch (Exception e)
+
+            listLength = downloadList.Count;
+
+            //test print statements
+            for (int i = 0; i < listLength; i++)
             {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("DL: " + downloadList[i]);
             }
-            
+
             // TODO: Error handling for non-existent file
-
-            // TODO: Parse for multiple files
-            //string item = ParseItem();
 
             var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + item);
             request.Method = WebRequestMethods.Ftp.DownloadFile;
@@ -134,9 +125,39 @@ namespace FTPizza
             throw new NotImplementedException();
         }
 
-        private string ParseItem()
+        private string ParseItem(string item)
         {
-            throw new NotImplementedException();
+            string line;
+            bool found = false;
+
+            try
+            {
+                if (!item.Contains("."))
+                {
+                    throw new Exception("Malformatted file: " + item);
+                }
+
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (line.Contains(item))
+                    {
+                        Console.WriteLine("FOUND IT!!!");
+                        found = true;
+                        return item;
+                    }
+                }
+
+                if (!found)
+                {
+                    throw new Exception("Unable to locate file: " + item);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+
+            return null;
         }
     }
 }
