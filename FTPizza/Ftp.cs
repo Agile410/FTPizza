@@ -63,10 +63,8 @@ namespace FTPizza
             string item;
             int listLength;
 
-            // TODO: Refactor for multiple files.
             Console.WriteLine("To download files, enter one filename per line." +
                 "\nWhen you are done, press 'CTRL+z, and then 'Enter'.");
-            //Console.WriteLine("Enter the name of file you wish to retrieve:");
 
             List<string> downloadList = new List<string>();
 
@@ -86,25 +84,29 @@ namespace FTPizza
 
             // TODO: Error handling for non-existent file
 
-            var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + item);
-            request.Method = WebRequestMethods.Ftp.DownloadFile;
-            request.UseBinary = false;
-
-            request.Credentials = new NetworkCredential(_userName, _userPass);
-
-            FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
-            using (Stream responseStream = response.GetResponseStream())
+            for (int i = 0; i < listLength; i++)
             {
-                using (FileStream writer = new FileStream(item, FileMode.Create))
-                {
-                    byte[] buffer = new byte[2048];
-                    int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
+                                                               + downloadList[i]);
+                request.Method = WebRequestMethods.Ftp.DownloadFile;
+                request.UseBinary = false;
 
-                    while (bytesRead > 0)
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                using (Stream responseStream = response.GetResponseStream())
+                {
+                    using (FileStream writer = new FileStream(downloadList[i], FileMode.Create))
                     {
-                        writer.Write(buffer, 0, bytesRead);
-                        bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                        byte[] buffer = new byte[2048];
+                        int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+
+                        while (bytesRead > 0)
+                        {
+                            writer.Write(buffer, 0, bytesRead);
+                            bytesRead = responseStream.Read(buffer, 0, buffer.Length);
+                        }
                     }
                 }
             }
