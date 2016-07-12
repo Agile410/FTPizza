@@ -20,14 +20,23 @@ namespace FTPizza
             _userUrl = userUrl;
             currentDirFiles = new List<string>();
 
-            // TODO: Refractor into new function that updates when we change DIR
+            fetchCurrentDirectoryItems();
+        }
+
+        public void fetchCurrentDirectoryItems()
+        {
+            // Connect to ftp server
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
             request.Credentials = new NetworkCredential(_userName, _userPass);
+            currentDirFiles = new List<string>();
+
+            // Send request for directory files
             try
             {
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.KeepAlive = true;
                 var response = (FtpWebResponse)request.GetResponse();
+                Console.WriteLine(response.StatusCode);
                 Stream responseStream = response.GetResponseStream();
                 var reader = new StreamReader(responseStream);
 
@@ -47,15 +56,13 @@ namespace FTPizza
 
         public void list()
         {
-            string line;
-
-            // Print list of directories
+            // Print list of files
             try
             {
-                Console.WriteLine(response.StatusCode);
-                while ((line = reader.ReadLine()) != null)
-                {
-                    Console.WriteLine(line);
+                fetchCurrentDirectoryItems();
+                foreach (string file in currentDirFiles)
+                { 
+                    Console.WriteLine(file);
                 }
 
             }
@@ -75,6 +82,7 @@ namespace FTPizza
 
             var downloadList = new List<string>();
 
+            // Read user submitted file names and add to list
             while ((item = Console.ReadLine()) != null)
             {
                 item = ParseItem(item);
@@ -86,14 +94,13 @@ namespace FTPizza
 
             listLength = downloadList.Count;
 
-            //test print statements
+            // Print list of requested files
             for (int i = 0; i < listLength; i++)
             {
                 Console.WriteLine("DL: " + downloadList[i]);
             }
 
-            // TODO: Error handling for non-existent file
-
+            // Download files from ftp server
             for (int i = 0; i < listLength; i++)
             {
                 try
@@ -147,7 +154,6 @@ namespace FTPizza
 
         private string ParseItem(string item)
         {
-            string line;
             bool found = false;
 
             try
@@ -157,9 +163,9 @@ namespace FTPizza
                     throw new Exception("Malformatted file: " + item);
                 }
 
-                while ((line = reader.ReadLine()) != null)
-                {
-                    if (line.Contains(item))
+                foreach (string file in currentDirFiles)
+                { 
+                    if (file.Contains(item))
                     {
                         Console.WriteLine("FOUND IT!!!");
                         found = true;
