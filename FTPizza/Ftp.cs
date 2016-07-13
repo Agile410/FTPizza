@@ -22,6 +22,30 @@ namespace FTPizza
             fetchCurrentDirectoryItems();
         }
 
+        /// <summary>
+        /// Validate user info trying to get responce from server
+        /// </summary>
+        public bool ValidateUserDestination()
+        {
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
+            request.Credentials = new NetworkCredential(_userName, _userPass);
+
+            try
+            {
+                request.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
+                request.KeepAlive = true;
+                var response = (FtpWebResponse)request.GetResponse();
+                response.Close();
+                return true;
+            }
+            catch (WebException e)
+            {
+                Console.WriteLine(e.ToString());
+                  Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
+                  return false;
+            }
+        }
+
         public void fetchCurrentDirectoryItems()
         {
             // Connect to ftp server
