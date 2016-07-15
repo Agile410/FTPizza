@@ -172,7 +172,21 @@ namespace FTPizza
 
         public void Local()
         {
-            throw new NotImplementedException();
+            try
+            {
+                string path = Directory.GetCurrentDirectory();
+                var localFiles = Directory.GetFiles(path);
+
+                foreach (string file in localFiles)
+                {
+                    Console.WriteLine(Path.GetFileName(file));
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         private string ParseItem(string item)
