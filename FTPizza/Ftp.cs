@@ -81,18 +81,16 @@ namespace FTPizza
 
 		public void fetchCurrentLocalDirectoryItems()
 		{
+			currentLocDirFiles = new List<string>();
+
 			try
 			{
 				string path = Directory.GetCurrentDirectory();
-				Console.WriteLine("0");
 				var localFiles = Directory.GetFiles(path);
-				Console.WriteLine("1");
 
 				foreach (string file in localFiles)
 				{
-					//currentLocDirFiles.Add(Path.GetFileName(file));
-					Console.WriteLine("33");
-					Console.WriteLine(file);
+					currentLocDirFiles.Add(Path.GetFileName(file));
 				}
 
 			}
@@ -139,11 +137,10 @@ namespace FTPizza
 			{
 				item = Console.ReadLine();
 				stop = item.Equals("^");
+				if (stop)
+					break;
 				item = verifyRemoteItem(item);
-				if (stop != true)
-				{
-					downloadList.Add(item);
-				}
+				downloadList.Add(item);
             }
 
             listLength = downloadList.Count;
@@ -211,11 +208,11 @@ namespace FTPizza
             {
                 item = Console.ReadLine();
                 stop = item.Equals("^");
+				if (stop)
+					break;
 				item = verifyLocalItem(item);
-                if (stop != true)
-                {
-                    uploadList.Add(item);
-                }
+                uploadList.Add(item);
+                
             }
 
             listLength = uploadList.Count;
@@ -236,7 +233,7 @@ namespace FTPizza
         {
 			try
             {
-				//fetchCurrentLocalDirectoryItems();
+				fetchCurrentLocalDirectoryItems();
 				foreach (string file in currentLocDirFiles)
                 {
                     Console.WriteLine(file);
@@ -255,7 +252,7 @@ namespace FTPizza
 
             try
             {
-                if (!item.Contains("."))
+                if (!item.Contains(".") || item.Equals("^"))
                 {
                     throw new Exception("Malformatted file: " + item);
                 }
@@ -287,7 +284,7 @@ namespace FTPizza
 
 			try
 			{
-				if (!item.Contains("."))
+				if (!item.Contains(".") || item.Equals("^"))
 				{
 					throw new Exception("Malformatted file: " + item);
 				}
