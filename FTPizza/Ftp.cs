@@ -132,31 +132,21 @@ namespace FTPizza
             var downloadList = new List<string>();
 
             // Read user submitted file names and add to list
-            while (stop != true)
-            {
-                item = Console.ReadLine();
-                stop = item.Equals("^");
-                if (stop)
-                    break;
-                item = verifyRemoteItem(item);
-                downloadList.Add(item);
-            }
-
-            listLength = downloadList.Count;
+            GetFiles(downloadList, currentRemDirFiles);
 
             // Print list of requested files
-            for (int i = 0; i < listLength; i++)
+            foreach (string file in downloadList)
             {
-                Console.WriteLine("DL: " + downloadList[i]);
+                Console.WriteLine("DL: " + file);
             }
 
             // Download files from ftp server
-            for (int i = 0; i < listLength; i++)
+            foreach (string remoteFile in downloadList)
             {
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                                          + downloadList[i]);
+                                                                   + remoteFile);
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
                     request.UseBinary = false;
 
@@ -191,7 +181,7 @@ namespace FTPizza
             var uploadList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(uploadList);
+            GetFiles(uploadList, currentLocDirFiles);
 
             // Print list of requested files
             foreach (string file in uploadList)
@@ -202,21 +192,17 @@ namespace FTPizza
             //TODO: Upload the files
         }
 
-        private void GetFiles(ICollection<string> uploadList)
+        //TODO Move verify item into here
+        private void GetFiles(ICollection<string> requestList, ICollection<string> DirList)
         {
-            
-
-            Console.WriteLine("To upload files, enter one filename per line." +
-                              "\nWhen you are done, press '^', and then 'Enter'.");
-
             string input = Console.ReadLine();
             while (input != "^")
             {
-                if (verifyItem(input, uploadList))
+                if (verifyItem(input, DirList))
                 {
-                    uploadList.Add(input);
-                    input = Console.ReadLine();
+                    requestList.Add(input);
                 }
+                input = Console.ReadLine();
 
             }
         }
@@ -252,7 +238,7 @@ namespace FTPizza
                 Console.WriteLine("Malformatted file: " + item);
             }
 
-            else if (currentLocDirFiles.Contains(item))
+            else if (list.Contains(item))
             {
                 Console.WriteLine("FOUND IT!!!");
                 found = true;
