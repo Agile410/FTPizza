@@ -60,6 +60,7 @@ namespace FTPizza
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.KeepAlive = true;
                 var response = (FtpWebResponse)request.GetResponse();
+                Console.WriteLine(response.StatusCode);
                 Stream responseStream = response.GetResponseStream();
                 var reader = new StreamReader(responseStream);
 
@@ -102,11 +103,18 @@ namespace FTPizza
         public void list()
         {
             // Print list of files
-            fetchCurrentRemoteDirectoryItems();
-
-            foreach (string file in currentRemDirFiles)
+            try
             {
-                Console.WriteLine(file);
+                fetchCurrentRemoteDirectoryItems();
+                foreach (string file in currentRemDirFiles)
+                {
+                    Console.WriteLine(file);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
             }
         }
 
@@ -124,21 +132,31 @@ namespace FTPizza
             var downloadList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(downloadList);
-
-            foreach (string file in downloadList)
+            while (stop != true)
             {
-                Console.WriteLine("DL: " + file);
+                item = Console.ReadLine();
+                stop = item.Equals("^");
+                if (stop)
+                    break;
+                item = verifyRemoteItem(item);
+                downloadList.Add(item);
             }
 
+            listLength = downloadList.Count;
+
+            // Print list of requested files
+            for (int i = 0; i < listLength; i++)
+            {
+                Console.WriteLine("DL: " + downloadList[i]);
+            }
 
             // Download files from ftp server
-            foreach (string remoteFile in downloadList)
+            for (int i = 0; i < listLength; i++)
             {
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                                   + remoteFile);
+                                                                          + downloadList[i]);
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
                     request.UseBinary = false;
 
