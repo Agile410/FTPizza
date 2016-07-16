@@ -60,7 +60,6 @@ namespace FTPizza
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.KeepAlive = true;
                 var response = (FtpWebResponse)request.GetResponse();
-                Console.WriteLine(response.StatusCode);
                 Stream responseStream = response.GetResponseStream();
                 var reader = new StreamReader(responseStream);
 
@@ -132,31 +131,21 @@ namespace FTPizza
             var downloadList = new List<string>();
 
             // Read user submitted file names and add to list
-            while (stop != true)
-            {
-                item = Console.ReadLine();
-                stop = item.Equals("^");
-                if (stop)
-                    break;
-                item = verifyRemoteItem(item);
-                downloadList.Add(item);
-            }
-
-            listLength = downloadList.Count;
+            GetFiles(downloadList, currentRemDirFiles);
 
             // Print list of requested files
-            for (int i = 0; i < listLength; i++)
+            foreach (string file in downloadList)
             {
-                Console.WriteLine("DL: " + downloadList[i]);
+                Console.WriteLine("DL: " + file);
             }
 
             // Download files from ftp server
-            for (int i = 0; i < listLength; i++)
+            foreach (string remoteFile in downloadList)
             {
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                                          + downloadList[i]);
+                                                                   + remoteFile);
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
                     request.UseBinary = false;
 
@@ -188,37 +177,32 @@ namespace FTPizza
 
         public void put()
         {
-            string item;
-            int listLength;
-            bool stop = false;
-
-            fetchCurrentLocalDirectoryItems();
-
-            //Changed "Ctrl+Z" to "^" so that mac users can test (Ctrl+Z stops the program from running)
-            //This requires some changes to the logic
-            Console.WriteLine("To upload files, enter one filename per line." +
-                "\nWhen you are done, press '^', and then 'Enter'.");
-
             var uploadList = new List<string>();
 
             // Read user submitted file names and add to list
-            while (stop != true)
-            {
-                item = Console.ReadLine();
-                stop = item.Equals("^");
-                if (stop)
-                    break;
-                item = verifyLocalItem(item);
-                uploadList.Add(item);
-
-            }
-
-            listLength = uploadList.Count;
+            GetFiles(uploadList, currentLocDirFiles);
 
             // Print list of requested files
-            for (int i = 0; i < listLength; i++)
+            foreach (string file in uploadList)
             {
-                Console.WriteLine("UL: " + uploadList[i]);
+                Console.WriteLine("UL: " + file);
+            }
+
+            //TODO: Upload the files
+        }
+
+        //TODO Move verify item into here
+        private void GetFiles(ICollection<string> requestList, ICollection<string> DirList)
+        {
+            string input = Console.ReadLine();
+            while (input != "^")
+            {
+                if (verifyItem(input, DirList))
+                {
+                    requestList.Add(input);
+                }
+                input = Console.ReadLine();
+
             }
         }
 
@@ -244,67 +228,27 @@ namespace FTPizza
             }
         }
 
-        private string verifyRemoteItem(string item)
+        private bool verifyItem(string item, ICollection<string> list)
         {
             bool found = false;
 
-            try
+            if (!item.Contains(".") || item.Equals("^"))
             {
-                if (!item.Contains(".") || item.Equals("^"))
-                {
-                    throw new Exception("Malformatted file: " + item);
-                }
-
-                if (currentRemDirFiles.Contains(item))
-                {
-                    Console.WriteLine("FOUND IT!!!");
-                    found = true;
-                    return item;
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("Malformatted file: " + item);
             }
 
-            return null;
-        }
-
-
-        private string verifyLocalItem(string item)
-        {
-            bool found = false;
-
-            try
+            else if (list.Contains(item))
             {
-                if (!item.Contains(".") || item.Equals("^"))
-                {
-                    throw new Exception("Malformatted file: " + item);
-                }
-
-                if (currentLocDirFiles.Contains(item))
-                {
-                    Console.WriteLine("FOUND IT!!!");
-                    found = true;
-                    return item;
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("FOUND IT!!!");
+                found = true;
             }
 
-            return null;
+            else
+            {
+                Console.WriteLine("Unable to locate file: " + item);
+            }
+
+            return found;
         }
     }
 }
