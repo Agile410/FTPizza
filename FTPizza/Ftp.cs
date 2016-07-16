@@ -188,37 +188,36 @@ namespace FTPizza
 
         public void put()
         {
-            string item;
-            int listLength;
-            bool stop = false;
-
-            fetchCurrentLocalDirectoryItems();
-
-            //Changed "Ctrl+Z" to "^" so that mac users can test (Ctrl+Z stops the program from running)
-            //This requires some changes to the logic
-            Console.WriteLine("To upload files, enter one filename per line." +
-                "\nWhen you are done, press '^', and then 'Enter'.");
-
             var uploadList = new List<string>();
 
             // Read user submitted file names and add to list
-            while (stop != true)
-            {
-                item = Console.ReadLine();
-                stop = item.Equals("^");
-                if (stop)
-                    break;
-                item = verifyLocalItem(item);
-                uploadList.Add(item);
-
-            }
-
-            listLength = uploadList.Count;
+            GetFiles(uploadList);
 
             // Print list of requested files
-            for (int i = 0; i < listLength; i++)
+            foreach (string file in uploadList)
             {
-                Console.WriteLine("UL: " + uploadList[i]);
+                Console.WriteLine("UL: " + file);
+            }
+
+            //TODO: Upload the files
+        }
+
+        private void GetFiles(ICollection<string> uploadList)
+        {
+            
+
+            Console.WriteLine("To upload files, enter one filename per line." +
+                              "\nWhen you are done, press '^', and then 'Enter'.");
+
+            string input = Console.ReadLine();
+            while (input != "^")
+            {
+                if (verifyItem(input, uploadList))
+                {
+                    uploadList.Add(input);
+                    input = Console.ReadLine();
+                }
+
             }
         }
 
@@ -244,67 +243,27 @@ namespace FTPizza
             }
         }
 
-        private string verifyRemoteItem(string item)
+        private bool verifyItem(string item, ICollection<string> list)
         {
             bool found = false;
 
-            try
+            if (!item.Contains(".") || item.Equals("^"))
             {
-                if (!item.Contains(".") || item.Equals("^"))
-                {
-                    throw new Exception("Malformatted file: " + item);
-                }
-
-                if (currentRemDirFiles.Contains(item))
-                {
-                    Console.WriteLine("FOUND IT!!!");
-                    found = true;
-                    return item;
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("Malformatted file: " + item);
             }
 
-            return null;
-        }
-
-
-        private string verifyLocalItem(string item)
-        {
-            bool found = false;
-
-            try
+            else if (currentLocDirFiles.Contains(item))
             {
-                if (!item.Contains(".") || item.Equals("^"))
-                {
-                    throw new Exception("Malformatted file: " + item);
-                }
-
-                if (currentLocDirFiles.Contains(item))
-                {
-                    Console.WriteLine("FOUND IT!!!");
-                    found = true;
-                    return item;
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("FOUND IT!!!");
+                found = true;
             }
 
-            return null;
+            else
+            {
+                Console.WriteLine("Unable to locate file: " + item);
+            }
+
+            return found;
         }
     }
 }
