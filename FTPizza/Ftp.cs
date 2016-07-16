@@ -162,7 +162,34 @@ namespace FTPizza
 
         public void put()
         {
-            throw new NotImplementedException();
+            string item;
+            int listLength;
+            bool stop = false;
+
+            Console.WriteLine("To upload files, enter one filename per line." +
+                "\nWhen you are done, press '^', and then 'Enter'.");
+
+            var uploadList = new List<string>();
+
+            // Read user submitted file names and add to list
+            while (stop != true)
+            {
+                item = Console.ReadLine();
+                stop = item.Equals("^");
+                //item = ParseItem(item);
+                if (stop != true)
+                {
+                    uploadList.Add(item);
+                }
+            }
+
+            listLength = uploadList.Count;
+
+            // Print list of requested files
+            for (int i = 0; i < listLength; i++)
+            {
+                Console.WriteLine("UL: " + uploadList[i]);
+            }
         }
 
         public void quit()
