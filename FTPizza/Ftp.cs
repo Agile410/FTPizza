@@ -166,7 +166,7 @@ namespace FTPizza
 
                     using (Stream responseStream = response.GetResponseStream())
                     {
-                        using (FileStream writer = new FileStream(downloadList[i], FileMode.Create))
+                        using (FileStream writer = new FileStream(remoteFile, FileMode.Create))
                         {
                             byte[] buffer = new byte[2048];
                             int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
