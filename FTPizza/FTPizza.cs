@@ -14,14 +14,30 @@ namespace FTPizza
         {
             while (true)
             {
-                Console.WriteLine("Enter the url for the FTP Server:");
-                string ftpUrl = Console.ReadLine();
+                Console.WriteLine("Do you have stored connection info you'd like to use? (y/n):");
+                string answer = Console.ReadLine();
+                string ftpUrl;
+                string ftpUsername;
+                string ftpPassword;
 
-                Console.WriteLine("Enter the username for the FTP Server:");
-                string ftpUsername = Console.ReadLine();
+                if (answer.Equals("y"))
+                {
+                    Console.WriteLine("Connecting with saved connection info...");
+                    ftpUrl = "a_url";
+                    ftpUsername = "a_username";
+                    ftpPassword = "a_password";
+                }
+                else
+                {
+                    Console.WriteLine("Enter the url for the FTP Server:");
+                    ftpUrl = Console.ReadLine();
 
-                Console.WriteLine("Enter the password for the FTP Server:");
-                string ftpPassword = Console.ReadLine();
+                    Console.WriteLine("Enter the username for the FTP Server:");
+                    ftpUsername = Console.ReadLine();
+
+                    Console.WriteLine("Enter the password for the FTP Server:");
+                    ftpPassword = Console.ReadLine();
+                }
 
                 //Console.Clear();
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
