@@ -120,12 +120,6 @@ namespace FTPizza
 
         public void get()
         {
-            string item;
-            int listLength;
-            bool stop = false;
-
-            //Changed "Ctrl+Z" to "^" so that mac users can test (Ctrl+Z stops the program from running)
-            //This requires some changes to the logic
             Console.WriteLine("To download files, enter one filename per line." +
                 "\nWhen you are done, press '^' and then 'Enter'.");
 
@@ -178,6 +172,8 @@ namespace FTPizza
 
         public void put()
         {
+            Console.WriteLine("To upload files, enter one filename per line." +
+                "\nWhen you are done, press '^' and then 'Enter'.");
             var uploadList = new List<string>();
 
             // Read user submitted file names and add to list
