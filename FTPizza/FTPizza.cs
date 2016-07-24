@@ -17,95 +17,20 @@ namespace FTPizza
                 string ftpUrl;
                 string ftpUsername;
                 string ftpPassword;
-                string[] connectionFile;
+                ConnectionManager connection = new ConnectionManager();
 
-                Console.WriteLine("/////////////////////////////////////");
-                Console.WriteLine("Loading with saved connection info...");
-                Console.WriteLine("/////////////////////////////////////");
-                try
-                {
-                   connectionFile = System.IO.File.ReadAllLines(@"connection.txt");
-                }
-                catch (FileNotFoundException)
-                {                   
-                    //Calls GC on object after creation to allow access other processes
-                    File.Create("connection.txt").Dispose();
-                    connectionFile = new string[] {};
-                }
-                
-                List<string> connectionInfo = new List<string>();
+                connection.displayAvailableUsers();
+                connection.selectUser();
 
-                Console.WriteLine("\n/////////////////////////////////////");
-                Console.WriteLine("The following users are available:");
-                Console.WriteLine();
-                foreach (string item in connectionFile)
-                {
-                    if (item.Contains("user="))
-                    {
-                        Console.WriteLine("--> '" + item.Replace("user=", "") + "'");
-                    }
-                }
-                Console.WriteLine();
-
-                Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
-                string answer = Console.ReadLine();
-
-                if (answer.Equals("create"))
-                {
-                    foreach (string item in connectionFile)
-                    {
-                        connectionInfo.Add(item);
-                    }
-
-                    Console.WriteLine("/////////////////////////////////////");
-                    Console.WriteLine("Creating a new user...");
-                    Console.WriteLine("/////////////////////////////////////");
-                    Console.WriteLine("Enter the url for the FTP Server:");
-                    ftpUrl = Console.ReadLine();
-                    connectionInfo.Add("url=" + ftpUrl);
-
-                    Console.WriteLine("Enter the username for the FTP Server:");
-                    ftpUsername = Console.ReadLine();
-                    connectionInfo.Add("user=" + ftpUsername);
-
-                    Console.WriteLine("Enter the password for the FTP Server:");
-                    ftpPassword = Console.ReadLine();
-                    connectionInfo.Add("pass=" + ftpPassword);
-                    
-                }
-                else
-                {
-                    int userIndex = 0;
-                    foreach (string item in connectionFile)
-                    {
-                        if (item.Contains(answer))
-                        {
-                            break;
-                        }
-                        ++userIndex;
-                    }
-                    ftpUrl = connectionFile[userIndex - 1].Replace("url=", "");
-                    ftpUsername = connectionFile[userIndex].Replace("user=", "");
-                    ftpPassword = connectionFile[userIndex + 1].Replace("pass=", "");
-               
-                }  
+                ftpUrl = connection.getFtpUrl();
+                ftpUsername = connection.getFtpUsername();
+                ftpPassword = connection.getFtpPassword();
 
                 //Console.Clear();
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
                 if (!client.ValidateUserDestination()) continue;
 
-                if (answer.Equals("create"))
-                {
-                    string[] newConnectionInfo = new string[connectionInfo.Count];
-                    int index = 0;
-                    foreach (string item in connectionInfo)
-                    {
-                        newConnectionInfo[index] = item;
-                        ++index;
-                    }
-                    System.IO.File.WriteAllLines(@"connection.txt", newConnectionInfo);
-                }
-                Console.WriteLine("/////////////////////////////////////\n");
+                connection.saveUserInfo();
 
                 while (true)
                 {
