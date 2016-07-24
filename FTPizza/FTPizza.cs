@@ -14,20 +14,26 @@ namespace FTPizza
         {
             while (true)
             {
-                Console.WriteLine("Do you have stored connection info you'd like to use? (y/n):");
-                string answer = Console.ReadLine();
                 string ftpUrl;
                 string ftpUsername;
                 string ftpPassword;
 
-                if (answer.Equals("y"))
+                Console.WriteLine("Loading with saved connection info...");
+                string[] connection_file = System.IO.File.ReadAllLines(@"connection.txt");
+
+                Console.WriteLine("The following users are available:");
+                foreach (string item in connection_file)
                 {
-                    Console.WriteLine("Connecting with saved connection info...");
-                    ftpUrl = "a_url";
-                    ftpUsername = "a_username";
-                    ftpPassword = "a_password";
+                    if (item.Contains("user="))
+                    {
+                        Console.WriteLine("--> '" + item.Replace("user=", "") + "'");
+                    }
                 }
-                else
+
+                Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
+                string answer = Console.ReadLine();
+
+                if (answer.Equals("create"))
                 {
                     Console.WriteLine("Enter the url for the FTP Server:");
                     ftpUrl = Console.ReadLine();
@@ -37,6 +43,21 @@ namespace FTPizza
 
                     Console.WriteLine("Enter the password for the FTP Server:");
                     ftpPassword = Console.ReadLine();
+                }
+                else
+                {
+                    int userIndex = 0;
+                    foreach (string item in connection_file)
+                    {
+                        if (item.Contains(answer))
+                        {
+                            break;
+                        }
+                        ++userIndex;
+                    }
+                    ftpUrl = connection_file[userIndex - 1].Replace("url=", "");
+                    ftpUsername = connection_file[userIndex].Replace("user=", "");
+                    ftpPassword = connection_file[userIndex + 1].Replace("pass=", "");
                 }
 
                 //Console.Clear();
