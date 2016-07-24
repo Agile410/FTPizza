@@ -17,11 +17,22 @@ namespace FTPizza
                 string ftpUrl;
                 string ftpUsername;
                 string ftpPassword;
+                string[] connectionFile;
 
                 Console.WriteLine("/////////////////////////////////////");
                 Console.WriteLine("Loading with saved connection info...");
                 Console.WriteLine("/////////////////////////////////////");
-                string[] connectionFile = System.IO.File.ReadAllLines(@"connection.txt");
+                try
+                {
+                   connectionFile = System.IO.File.ReadAllLines(@"connection.txt");
+                }
+                catch (FileNotFoundException)
+                {                   
+                    //Calls GC on object after creation to allow access other processes
+                    File.Create("connection.txt").Dispose();
+                    connectionFile = new string[] {};
+                }
+                
                 List<string> connectionInfo = new List<string>();
 
                 Console.WriteLine("\n/////////////////////////////////////");
