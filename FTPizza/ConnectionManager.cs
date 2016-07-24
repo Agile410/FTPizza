@@ -41,6 +41,13 @@ namespace FTPizza
 
         public void displayAvailableUsers()
         {
+            Console.WriteLine(connectionFile.Length);
+            if (connectionFile.Length > 0 && ((connectionFile.Length % 3) != 0))
+            {
+                System.Diagnostics.Debug.WriteLine("ERROR: connection.txt is corrupt.");
+                throw new Exception("ERROR: connection.txt is corrupt.");
+            }
+
             Console.WriteLine("\n/////////////////////////////////////");
             Console.WriteLine("The following users are available:");
             Console.WriteLine();

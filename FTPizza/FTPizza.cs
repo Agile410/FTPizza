@@ -19,7 +19,16 @@ namespace FTPizza
                 string ftpPassword;
                 ConnectionManager connection = new ConnectionManager();
 
-                connection.displayAvailableUsers();
+                try
+                {
+                    connection.displayAvailableUsers();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    break;
+                }
+
                 connection.selectUser();
 
                 ftpUrl = connection.getFtpUrl();
