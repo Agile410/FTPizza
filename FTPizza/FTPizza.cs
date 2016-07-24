@@ -25,6 +25,7 @@ namespace FTPizza
 
                 //Console.Clear();
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
+                Console.Clear();
                 if (!client.ValidateUserDestination()) continue;
 
                 while (true)

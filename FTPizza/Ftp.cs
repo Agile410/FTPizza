@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Net;
+using System.Text;
 
 namespace FTPizza
 {
@@ -11,7 +12,8 @@ namespace FTPizza
         public string _userName { get; set; }
         public string _userPass { get; set; }
         public string _userUrl { get; set; }
-        public List<string> currentDirFiles;
+        private List<string> currentRemDirFiles;
+        private List<string> currentLocDirFiles;
 
         public Ftp(string userName, string userPass, string userUrl)
         {
@@ -19,11 +21,12 @@ namespace FTPizza
             _userPass = userPass;
             _userUrl = userUrl;
 
-            fetchCurrentDirectoryItems();
+            fetchCurrentRemoteDirectoryItems();
+            fetchCurrentLocalDirectoryItems();
         }
 
         /// <summary>
-        /// Validate user info trying to get responce from server
+        /// Validate user info trying to get response from server
         /// </summary>
         public bool ValidateUserDestination()
         {
@@ -40,18 +43,17 @@ namespace FTPizza
             }
             catch (WebException e)
             {
-                Console.WriteLine(e.ToString());
-                  Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
-                  return false;
+                Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
+                return false;
             }
         }
 
-        public void fetchCurrentDirectoryItems()
+        public void fetchCurrentRemoteDirectoryItems()
         {
             // Connect to ftp server
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
             request.Credentials = new NetworkCredential(_userName, _userPass);
-            currentDirFiles = new List<string>();
+            currentRemDirFiles = new List<string>();
 
             // Send request for directory files
             try
@@ -59,14 +61,13 @@ namespace FTPizza
                 request.Method = WebRequestMethods.Ftp.ListDirectory;
                 request.KeepAlive = true;
                 var response = (FtpWebResponse)request.GetResponse();
-                Console.WriteLine(response.StatusCode);
                 Stream responseStream = response.GetResponseStream();
                 var reader = new StreamReader(responseStream);
 
                 string line = reader.ReadLine();
                 while (!string.IsNullOrEmpty(line))
                 {
-                    currentDirFiles.Add(line);
+                    currentRemDirFiles.Add(line);
                     line = reader.ReadLine();
                 }
             }
@@ -77,14 +78,36 @@ namespace FTPizza
         }
 
 
+        public void fetchCurrentLocalDirectoryItems()
+        {
+            currentLocDirFiles = new List<string>();
+
+            try
+            {
+                string path = Directory.GetCurrentDirectory();
+                var localFiles = Directory.GetFiles(path);
+
+                foreach (string file in localFiles)
+                {
+                    currentLocDirFiles.Add(Path.GetFileName(file));
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+
         public void list()
         {
             // Print list of files
             try
             {
-                fetchCurrentDirectoryItems();
-                foreach (string file in currentDirFiles)
-                { 
+                fetchCurrentRemoteDirectoryItems();
+                foreach (string file in currentRemDirFiles)
+                {
                     Console.WriteLine(file);
                 }
 
@@ -97,39 +120,27 @@ namespace FTPizza
 
         public void get()
         {
-            string item;
-            int listLength;
-
             Console.WriteLine("To download files, enter one filename per line." +
-                "\nWhen you are done, press 'CTRL+z, and then 'Enter'.");
+                "\nWhen you are done, press '^' and then 'Enter'.");
 
             var downloadList = new List<string>();
 
             // Read user submitted file names and add to list
-            while ((item = Console.ReadLine()) != null)
-            {
-                item = ParseItem(item);
-                if (item != null)
-                {
-                    downloadList.Add(item);
-                }
-            }
-
-            listLength = downloadList.Count;
+            GetFiles(downloadList, currentRemDirFiles);
 
             // Print list of requested files
-            for (int i = 0; i < listLength; i++)
+            foreach (string file in downloadList)
             {
-                Console.WriteLine("DL: " + downloadList[i]);
+                Console.WriteLine("DL: " + file);
             }
 
             // Download files from ftp server
-            for (int i = 0; i < listLength; i++)
+            foreach (string remoteFile in downloadList)
             {
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                                          + downloadList[i]);
+                                                                   + remoteFile);
                     request.Method = WebRequestMethods.Ftp.DownloadFile;
                     request.UseBinary = false;
 
@@ -139,7 +150,7 @@ namespace FTPizza
 
                     using (Stream responseStream = response.GetResponseStream())
                     {
-                        using (FileStream writer = new FileStream(downloadList[i], FileMode.Create))
+                        using (FileStream writer = new FileStream(remoteFile, FileMode.Create))
                         {
                             byte[] buffer = new byte[2048];
                             int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
@@ -152,17 +163,61 @@ namespace FTPizza
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-
-                    throw;
+                    Console.WriteLine(e.ToString());
                 }
             }
         }
 
         public void put()
         {
-            throw new NotImplementedException();
+            Console.WriteLine("To upload files, enter one filename per line." +
+                "\nWhen you are done, press '^' and then 'Enter'.");
+            var uploadList = new List<string>();
+
+            // Read user submitted file names and add to list
+            GetFiles(uploadList, currentLocDirFiles);
+
+            // Print list of requested files
+            foreach (string file in uploadList)
+            {
+                Console.WriteLine("UL: " + file);
+            }
+
+            foreach (string file in uploadList)
+            {
+                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
+                request.Method = WebRequestMethods.Ftp.UploadFile;
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                StreamReader sourceStream = new StreamReader(file);
+                byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+                sourceStream.Close();
+                request.ContentLength = fileContents.Length;
+
+                Stream requestStream = request.GetRequestStream();
+                requestStream.Write(fileContents, 0, fileContents.Length);
+                requestStream.Close();
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                response.Close();
+            }
+        }
+
+        //TODO Move verify item into here
+        private void GetFiles(ICollection<string> requestList, ICollection<string> DirList)
+        {
+            string input = Console.ReadLine();
+            while (input != "^")
+            {
+                if (verifyItem(input, DirList))
+                {
+                    requestList.Add(input);
+                }
+                input = Console.ReadLine();
+
+            }
         }
 
         public void quit()
@@ -174,50 +229,40 @@ namespace FTPizza
         {
             try
             {
-                string path = Directory.GetCurrentDirectory();
-                var localFiles = Directory.GetFiles(path);
-
-                foreach (string file in localFiles)
+                fetchCurrentLocalDirectoryItems();
+                foreach (string file in currentLocDirFiles)
                 {
-                    Console.WriteLine(Path.GetFileName(file));
+                    Console.WriteLine(file);
                 }
-
             }
+
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
             }
         }
 
-        private string ParseItem(string item)
+        private bool verifyItem(string item, ICollection<string> list)
         {
             bool found = false;
 
-            try
+            if (!item.Contains(".") || item.Equals("^"))
             {
-                if (!item.Contains("."))
-                {
-                    throw new Exception("Malformatted file: " + item);
-                }
-
-                if (currentDirFiles.Contains(item))
-                {
-                    Console.WriteLine("FOUND IT!!!");
-                    found = true;
-                    return item;
-                }
-
-                if (!found)
-                {
-                    throw new Exception("Unable to locate file: " + item);
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
+                Console.WriteLine("Malformatted file: " + item);
             }
 
-            return null;
+            else if (list.Contains(item))
+            {
+                Console.WriteLine("FOUND IT!!!");
+                found = true;
+            }
+
+            else
+            {
+                Console.WriteLine("Unable to locate file: " + item);
+            }
+
+            return found;
         }
     }
 }
