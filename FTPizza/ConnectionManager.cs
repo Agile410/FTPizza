@@ -19,6 +19,7 @@ namespace FTPizza
         private int userIndex;
         private string answer;
         private string selectedUser;
+        private bool newUser;
 
         public ConnectionManager()
         {
@@ -29,12 +30,14 @@ namespace FTPizza
             try
             {
                 connectionFile = File.ReadAllLines(@"connection.txt");
+                newUser = false;
             }
             catch (FileNotFoundException)
             {
                 //Calls GC on object after creation to allow access other processes
                 File.Create("connection.txt").Dispose();
                 connectionFile = new string[] { };
+                newUser = true;
             }
 
         }
@@ -48,31 +51,38 @@ namespace FTPizza
                 throw new Exception("ERROR: connection.txt is corrupt.");
             }
 
-            Console.WriteLine("\n/////////////////////////////////////");
-            Console.WriteLine("The following users are available:");
-            Console.WriteLine();
-            foreach (string item in connectionFile)
+            if (!newUser)
             {
-                if (item.Contains("user="))
+                Console.WriteLine("\n/////////////////////////////////////");
+                Console.WriteLine("The following users are available:");
+                Console.WriteLine();
+                foreach (string item in connectionFile)
                 {
-                    Console.WriteLine("--> '" + item.Replace("user=", "") + "'");
+                    if (item.Contains("user="))
+                    {
+                        Console.WriteLine("--> '" + item.Replace("user=", "") + "'");
+                    }
                 }
+                Console.WriteLine();
             }
-            Console.WriteLine();
         }
 
         public void selectUser()
         {
             connectionInfo = new List<string>();
-            Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
-            answer = Console.ReadLine();
+
+            if(!newUser && connectionFile.Length > 0)
+            {
+                Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
+                answer = Console.ReadLine();
+            }
 
             foreach (string item in connectionFile)
             {
                 connectionInfo.Add(item);
             }
 
-            if (answer.Equals("create"))
+            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 Console.WriteLine("/////////////////////////////////////");
                 Console.WriteLine("Creating a new user...");
@@ -113,7 +123,7 @@ namespace FTPizza
 
         public void saveUserInfo()
         {
-            if (answer.Equals("create"))
+            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 string[] newConnectionInfo = new string[connectionInfo.Count];
                 int index = 0;
@@ -129,7 +139,7 @@ namespace FTPizza
 
         public string getFtpUrl()
         {
-            if (answer.Equals("create"))
+            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 return ftpUrl; 
             }
@@ -141,7 +151,7 @@ namespace FTPizza
 
         public string getFtpUsername()
         {
-            if (answer.Equals("create"))
+            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 return ftpUsername; 
             }
@@ -153,7 +163,7 @@ namespace FTPizza
 
         public string getFtpPassword()
         {
-            if (answer.Equals("create"))
+            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 return ftpPassword;
             }
