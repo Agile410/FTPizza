@@ -129,17 +129,38 @@ namespace FTPizza
 
         public string getFtpUrl()
         {
-            return connectionFile[userIndex - 1].Replace("url=", "");
+            if (answer.Equals("create"))
+            {
+                return ftpUrl; 
+            }
+            else
+            {
+                return connectionFile[userIndex - 1].Replace("url=", "");
+            }
         }
 
         public string getFtpUsername()
         {
-            return connectionFile[userIndex].Replace("user=", "");
+            if (answer.Equals("create"))
+            {
+                return ftpUsername; 
+            }
+            else
+            {
+                return connectionFile[userIndex].Replace("user=", "");
+            }
         }
 
         public string getFtpPassword()
         {
-            return connectionFile[userIndex + 1].Replace("pass=", "");
+            if (answer.Equals("create"))
+            {
+                return ftpPassword;
+            }
+            else
+            {
+                return connectionFile[userIndex + 1].Replace("pass=", "");
+            }
         }
     }
 }
