@@ -220,6 +220,35 @@ namespace FTPizza
             }
         }
 
+        public void delete()
+        {
+            Console.WriteLine("To delete files, enter one filename per line." +
+                           "\nWhen you are done, press '^' and then 'Enter'.");
+            var deleteList = new List<string>();
+
+            // Read user submitted file names and add to list
+            GetFiles(deleteList, currentLocDirFiles);
+
+            // Print list of requested files
+            foreach (string file in deleteList)
+            {
+                Console.WriteLine("UL: " + file);
+            }
+
+            foreach (string file in deleteList)
+            {
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                request.KeepAlive = true;
+                request.Method = WebRequestMethods.Ftp.DeleteFile;
+
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                response.Close();
+                request = null;
+            }
+        }
+
         public void quit()
         {
             throw new NotImplementedException();
