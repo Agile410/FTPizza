@@ -14,24 +14,40 @@ namespace FTPizza
         {
             while (true)
             {
-                Console.WriteLine("Enter the url for the FTP Server:");
-                string ftpUrl = Console.ReadLine();
+                string ftpUrl;
+                string ftpUsername;
+                string ftpPassword;
+                ConnectionManager connection = new ConnectionManager();
 
-                Console.WriteLine("Enter the username for the FTP Server:");
-                string ftpUsername = Console.ReadLine();
+                try
+                {
+                    connection.displayAvailableUsers();
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.ToString());
+                    break;
+                }
 
-                Console.WriteLine("Enter the password for the FTP Server:");
-                string ftpPassword = Console.ReadLine();
+                connection.selectUser();
+
+                ftpUrl = connection.getFtpUrl();
+                ftpUsername = connection.getFtpUsername();
+                ftpPassword = connection.getFtpPassword();
 
                 //Console.Clear();
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
                 Console.Clear();
                 if (!client.ValidateUserDestination()) continue;
 
+                connection.saveUserInfo();
+
                 while (true)
-                {                   
+                {
+                    Console.WriteLine("/////////////////////////////////////");
                     Console.WriteLine("Select which operation to perform: ");
                     Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (Q)uit:");
+                    Console.WriteLine("/////////////////////////////////////");
                     string input = Console.ReadLine();
 
                     switch (input.ToLower())
@@ -54,7 +70,7 @@ namespace FTPizza
                         default:
                             client.quit();
                             break;
-                    }
+                   }
                 }
             }
         }
