@@ -251,7 +251,8 @@ namespace FTPizza
 
         public void quit()
         {
-            throw new NotImplementedException();
+            //Nothing to clean up. Quit console.
+            Environment.Exit(0);
         }
 
         public void Local()
