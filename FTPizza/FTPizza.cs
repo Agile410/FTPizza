@@ -46,8 +46,7 @@ namespace FTPizza
                 {
                     Console.WriteLine("/////////////////////////////////////");
                     Console.WriteLine("Select which operation to perform: ");
-                    Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (Q)uit:");
-                    Console.WriteLine("/////////////////////////////////////");
+                    Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (D)elete, (Q)uit:");
                     string input = Console.ReadLine();
 
                     switch (input.ToLower())
@@ -63,6 +62,9 @@ namespace FTPizza
                             break;
                         case "p":
                             client.put();
+                            break;
+                        case "d":
+                            client.delete();
                             break;
                         case "q":
                             client.quit();
