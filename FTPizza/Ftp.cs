@@ -227,7 +227,7 @@ namespace FTPizza
             var deleteList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(deleteList, currentLocDirFiles);
+            GetFiles(deleteList, currentRemDirFiles);
 
             // Print list of requested files
             foreach (string file in deleteList)
@@ -240,12 +240,10 @@ namespace FTPizza
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
                 request.Credentials = new NetworkCredential(_userName, _userPass);
 
-                request.KeepAlive = true;
                 request.Method = WebRequestMethods.Ftp.DeleteFile;
 
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
                 response.Close();
-                request = null;
             }
         }
 
