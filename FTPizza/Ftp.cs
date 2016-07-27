@@ -232,7 +232,7 @@ namespace FTPizza
             // Print list of requested files
             foreach (string file in deleteList)
             {
-                Console.WriteLine("UL: " + file);
+                Console.WriteLine("Delete List: " + file);
             }
 
             foreach (string file in deleteList)
