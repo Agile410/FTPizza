@@ -260,20 +260,16 @@ namespace FTPizza
                 Console.WriteLine("ERROR: " + input + " already existed.");
                 return;
             }
-            Console.WriteLine("DL: " + input);
+            Console.WriteLine("Creating directory: " + input);
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
                 request.Credentials = new NetworkCredential(_userName, _userPass);
-                request.UseBinary = true;
-                request.UsePassive = true;
-                request.KeepAlive = true;
 
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
-                request = null;
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
         }
@@ -336,10 +332,6 @@ namespace FTPizza
             {
                 Console.WriteLine("Directory FOUND");
                 found = true;
-            }
-            else
-            {
-                Console.WriteLine("Unable to locate file: " + item);
             }
             return found;
         }
