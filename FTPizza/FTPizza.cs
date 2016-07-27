@@ -31,7 +31,7 @@ namespace FTPizza
                 while (true)
                 {                   
                     Console.WriteLine("Select which operation to perform: ");
-                    Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (D)elete, (Q)uit:");
+                    Console.WriteLine("(L)ist, (LO)cal, (G)et, (P)ut, (D)elete, (C)reate Directory, (Q)uit:");
                     string input = Console.ReadLine();
 
                     switch (input.ToLower())
@@ -50,6 +50,9 @@ namespace FTPizza
                             break;
                         case "d":
                             client.delete();
+                            break;
+                        case "c":
+                            client.create_directory();
                             break;
                         case "q":
                             client.quit();

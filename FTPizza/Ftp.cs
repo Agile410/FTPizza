@@ -249,6 +249,35 @@ namespace FTPizza
             }
         }
 
+        public void create_directory()
+        {
+            Console.WriteLine("To create one director, then press 'Enter'.");
+
+            string input = Console.ReadLine();
+
+            if (verifyDirectory(input, currentRemDirFiles))
+            {
+                Console.WriteLine("ERROR: " + input + " already existed.");
+                return;
+            }
+            Console.WriteLine("DL: " + input);
+            try
+            {
+                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.UseBinary = true;
+                request.UsePassive = true;
+                request.KeepAlive = true;
+
+                request.Method = WebRequestMethods.Ftp.MakeDirectory;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                response.Close();
+                request = null;
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+        }
+
         public void quit()
         {
             throw new NotImplementedException();
@@ -291,6 +320,27 @@ namespace FTPizza
                 Console.WriteLine("Unable to locate file: " + item);
             }
 
+            return found;
+        }
+
+        private bool verifyDirectory(string item, ICollection<string> list)
+        {
+            //Return True if directory is found.
+            bool found = false;
+            if (item.Contains("."))
+            {
+                Console.WriteLine("Malformatted file(contains '.'): " + item);
+                found = true;
+            }
+            else if (list.Contains(item))
+            {
+                Console.WriteLine("Directory FOUND");
+                found = true;
+            }
+            else
+            {
+                Console.WriteLine("Unable to locate file: " + item);
+            }
             return found;
         }
     }
