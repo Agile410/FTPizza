@@ -119,6 +119,7 @@ namespace FTPizza
         }
 
         public void get()
+        public void Get()
         {
             Console.WriteLine("To download files, enter one filename per line." +
                 "\nWhen you are done, press '^' and then 'Enter'.");

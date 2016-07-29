@@ -58,7 +58,7 @@ namespace FTPizza
                             client.Local();
                             break;
                         case "g":
-                            client.get();
+                            client.Get();
                             break;
                         case "p":
                             client.put();
