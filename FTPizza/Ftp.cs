@@ -247,6 +247,31 @@ namespace FTPizza
             }
         }
 
+        public void create_directory()
+        {
+            Console.WriteLine("To create one director, then press 'Enter'.");
+
+            string input = Console.ReadLine();
+
+            if (verifyDirectory(input, currentRemDirFiles))
+            {
+                Console.WriteLine("ERROR: " + input + " already existed.");
+                return;
+            }
+            Console.WriteLine("Creating directory: " + input);
+            try
+            {
+                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                request.Method = WebRequestMethods.Ftp.MakeDirectory;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                response.Close();
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+        }
+
         public void quit()
         {
             //Nothing to clean up. Quit console.
@@ -290,6 +315,23 @@ namespace FTPizza
                 Console.WriteLine("Unable to locate file: " + item);
             }
 
+            return found;
+        }
+
+        private bool verifyDirectory(string item, ICollection<string> list)
+        {
+            //Return True if directory is found.
+            bool found = false;
+            if (item.Contains("."))
+            {
+                Console.WriteLine("Malformatted file(contains '.'): " + item);
+                found = true;
+            }
+            else if (list.Contains(item))
+            {
+                Console.WriteLine("Directory FOUND");
+                found = true;
+            }
             return found;
         }
     }
