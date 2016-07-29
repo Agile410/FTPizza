@@ -118,56 +118,35 @@ namespace FTPizza
             }
         }
 
-        public void get()
         public void Get()
         {
             Console.WriteLine("To download files, enter one filename per line." +
                 "\nWhen you are done, press '^' and then 'Enter'.");
 
-            var downloadList = new List<string>();
+            var requestedList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(downloadList, currentRemDirFiles);
+            GetFiles(requestedList, currentRemDirFiles);
 
             // Print list of requested files
-            foreach (string file in downloadList)
+            foreach (string file in requestedList)
             {
                 Console.WriteLine("DL: " + file);
             }
+   
+            DownloadUsingFtp(requestedList);
+        }
 
-            // Download files from ftp server
-            foreach (string remoteFile in downloadList)
+        public void DownloadUsingFtp(ICollection<string> requestedFiles)
+        {
+            foreach (string file in requestedFiles)
             {
-                try
-                {
-                    var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/"
-                                                                   + remoteFile);
-                    request.Method = WebRequestMethods.Ftp.DownloadFile;
-                    request.UseBinary = false;
+                WebClient request = new WebClient();
+                request.Credentials = new NetworkCredential(_userName, _userPass);
 
-                    request.Credentials = new NetworkCredential(_userName, _userPass);
-
-                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        using (FileStream writer = new FileStream(remoteFile, FileMode.Create))
-                        {
-                            byte[] buffer = new byte[2048];
-                            int bytesRead = responseStream.Read(buffer, 0, buffer.Length);
-
-                            while (bytesRead > 0)
-                            {
-                                writer.Write(buffer, 0, bytesRead);
-                                bytesRead = responseStream.Read(buffer, 0, buffer.Length);
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.ToString());
-                }
+                byte[] fileData = request.DownloadData("ftp://" + _userUrl + "/" + file);
+                FileStream writer = new FileStream(file, FileMode.Create);
+                writer.Write(fileData, 0, fileData.Length); 
             }
         }
 
