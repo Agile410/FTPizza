@@ -43,6 +43,7 @@ namespace FTPizza
             }
             catch (WebException e)
             {
+                Console.WriteLine(e.Status);
                 Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
                 return false;
             }
