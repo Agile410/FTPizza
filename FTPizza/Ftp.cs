@@ -255,7 +255,14 @@ namespace FTPizza
 
         public void quit()
         {
-            //Nothing to clean up. Quit console.
+            //Create a request object to ensure keepalive is false
+            FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
+            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.KeepAlive = false;
+            request.Method = WebRequestMethods.Ftp.ListDirectory;
+
+            var response = request.GetResponse();
+            response.Close();
             Environment.Exit(0);
         }
 
