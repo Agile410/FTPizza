@@ -77,9 +77,6 @@ namespace FTPizza
                         case "q":
                             client.Quit();
                             break;
-                        default:
-                            client.Quit();
-                            break;
                    }
                 }
             }
