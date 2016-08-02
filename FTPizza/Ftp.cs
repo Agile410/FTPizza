@@ -43,7 +43,7 @@ namespace FTPizza
             }
             catch (WebException e)
             {
-                Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
+                Console.WriteLine("ERROR: Failed to connect to ftp server. Check credentials and try again...");
                 return false;
             }
         }
@@ -131,7 +131,7 @@ namespace FTPizza
             // Print list of requested files
             foreach (string file in downloadList)
             {
-                Console.WriteLine("DL: " + file);
+                Console.WriteLine("Download List: " + file);
             }
 
             // Download files from ftp server
@@ -182,7 +182,7 @@ namespace FTPizza
             // Print list of requested files
             foreach (string file in uploadList)
             {
-                Console.WriteLine("UL: " + file);
+                Console.WriteLine("Upload List: " + file);
             }
 
             foreach (string file in uploadList)
@@ -210,7 +210,6 @@ namespace FTPizza
             string input = Console.ReadLine();
             while (input != "^")
             {
-                Console.WriteLine("Verifying file...");
                 if (verifyItem(input, DirList))
                 {
                     requestList.Add(input);
@@ -253,13 +252,12 @@ namespace FTPizza
 
             string input = Console.ReadLine();
 
-            Console.WriteLine("Checking if directory already exists...");
             if (verifyItem(input, currentRemDirFiles))
             {
                 Console.WriteLine("ERROR: " + input + " already exists.");
                 return;
             }
-            Console.WriteLine("Creating directory: " + input);
+  
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
@@ -279,7 +277,6 @@ namespace FTPizza
 
             string input = Console.ReadLine();
 
-            Console.WriteLine("Checking if directory already exists...");
             if (!verifyItem(input, currentRemDirFiles))
             {
                 Console.WriteLine("ERROR: " + input + " does not exist.");
