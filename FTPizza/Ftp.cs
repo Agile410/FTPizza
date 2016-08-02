@@ -248,7 +248,9 @@ namespace FTPizza
 
                 response.Close();
             }
-            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            catch (Exception e) {
+                Console.WriteLine(e.ToString());
+            }
         }
 
         public void delete_directory()
