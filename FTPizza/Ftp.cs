@@ -145,8 +145,11 @@ namespace FTPizza
                 request.Credentials = new NetworkCredential(_userName, _userPass);
 
                 byte[] fileData = request.DownloadData("ftp://" + _userUrl + "/" + file);
-                FileStream writer = new FileStream(file, FileMode.Create);
-                writer.Write(fileData, 0, fileData.Length); 
+                using (FileStream writer = new FileStream(file, FileMode.Create))
+                {
+                    writer.Write(fileData, 0, fileData.Length);
+                }
+                   
             }
         }
 
