@@ -43,8 +43,7 @@ namespace FTPizza
             }
             catch (WebException e)
             {
-                Console.WriteLine(e.Status);
-                Console.WriteLine("Fail to connect to ftp server check credentials and try again...");
+                Console.WriteLine("ERROR: Failed to connect to ftp server. Check credentials and try again...");
                 return false;
             }
         }
@@ -132,7 +131,7 @@ namespace FTPizza
             // Print list of requested files
             foreach (string file in requestedList)
             {
-                Console.WriteLine("DL: " + file);
+                Console.WriteLine("Download List: " + file);
             }
    
             DownloadUsingFtp(requestedList);
@@ -163,7 +162,7 @@ namespace FTPizza
             // Print list of requested files
             foreach (string file in uploadList)
             {
-                Console.WriteLine("UL: " + file);
+                Console.WriteLine("Upload List: " + file);
             }
 
             foreach (string file in uploadList)
@@ -186,7 +185,6 @@ namespace FTPizza
             }
         }
 
-        //TODO Move verify item into here
         private void GetFiles(ICollection<string> requestList, ICollection<string> DirList)
         {
             string input = Console.ReadLine();
@@ -230,22 +228,47 @@ namespace FTPizza
 
         public void create_directory()
         {
-            Console.WriteLine("To create one director, then press 'Enter'.");
+            Console.WriteLine("To create a directory: enter a directory name and then press 'Enter'.");
 
             string input = Console.ReadLine();
 
-            if (verifyDirectory(input, currentRemDirFiles))
+            if (verifyItem(input, currentRemDirFiles))
             {
-                Console.WriteLine("ERROR: " + input + " already existed.");
+                Console.WriteLine("ERROR: " + input + " already exists.");
                 return;
             }
-            Console.WriteLine("Creating directory: " + input);
+  
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
                 request.Credentials = new NetworkCredential(_userName, _userPass);
 
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
+                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+
+                response.Close();
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+        }
+
+        public void delete_directory()
+        {
+            Console.WriteLine("To delete a directory: enter the name of an existing directory, and then press 'Enter'.");
+
+            string input = Console.ReadLine();
+
+            if (!verifyItem(input, currentRemDirFiles))
+            {
+                Console.WriteLine("ERROR: " + input + " does not exist.");
+                return;
+            }
+            Console.WriteLine("Deleting directory: " + input);
+            try
+            {
+                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
+                request.Credentials = new NetworkCredential(_userName, _userPass);
+
+                request.Method = WebRequestMethods.Ftp.RemoveDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
@@ -286,13 +309,8 @@ namespace FTPizza
         private bool verifyItem(string item, ICollection<string> list)
         {
             bool found = false;
-
-            if (!item.Contains(".") || item.Equals("^"))
-            {
-                Console.WriteLine("Malformatted file: " + item);
-            }
-
-            else if (list.Contains(item))
+       
+            if (list.Contains(item))
             {
                 Console.WriteLine("FOUND IT!!!");
                 found = true;
@@ -300,26 +318,9 @@ namespace FTPizza
 
             else
             {
-                Console.WriteLine("Unable to locate file: " + item);
+                Console.WriteLine("Unable to locate item: " + item);
             }
 
-            return found;
-        }
-
-        private bool verifyDirectory(string item, ICollection<string> list)
-        {
-            //Return True if directory is found.
-            bool found = false;
-            if (item.Contains("."))
-            {
-                Console.WriteLine("Malformatted file(contains '.'): " + item);
-                found = true;
-            }
-            else if (list.Contains(item))
-            {
-                Console.WriteLine("Directory FOUND");
-                found = true;
-            }
             return found;
         }
     }
