@@ -170,21 +170,29 @@ namespace FTPizza
 
             foreach (string file in uploadList)
             {
-                var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
-                request.Method = WebRequestMethods.Ftp.UploadFile;
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                try
+                {
+                    var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
+                    request.Method = WebRequestMethods.Ftp.UploadFile;
+                    request.Credentials = new NetworkCredential(_userName, _userPass);
 
-                StreamReader sourceStream = new StreamReader(file);
-                byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
-                sourceStream.Close();
-                request.ContentLength = fileContents.Length;
+                    StreamReader sourceStream = new StreamReader(file);
+                    byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
+                    sourceStream.Close();
+                    request.ContentLength = fileContents.Length;
 
-                Stream requestStream = request.GetRequestStream();
-                requestStream.Write(fileContents, 0, fileContents.Length);
-                requestStream.Close();
+                    Stream requestStream = request.GetRequestStream();
+                    requestStream.Write(fileContents, 0, fileContents.Length);
+                    requestStream.Close();
 
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                response.Close();
+                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                    response.Close();
+                    currentRemDirFiles.Add(file);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                }
             }
         }
 
@@ -277,6 +285,7 @@ namespace FTPizza
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
+                currentRemDirFiles.Add(input);
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
         }
