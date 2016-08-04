@@ -137,7 +137,7 @@ namespace FTPizza
             DownloadUsingFtp(requestedList);
         }
 
-        public void DownloadUsingFtp(ICollection<string> requestedFiles)
+        public void DownloadUsingFtp(IEnumerable<string> requestedFiles)
         {
             foreach (string file in requestedFiles)
             {
