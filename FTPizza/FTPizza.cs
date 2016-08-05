@@ -35,7 +35,6 @@ namespace FTPizza
                 ftpUsername = connection.getFtpUsername();
                 ftpPassword = connection.getFtpPassword();
 
-                //Console.Clear();
                 Ftp client = new Ftp(ftpUsername, ftpPassword, ftpUrl);
                 Console.Clear();
                 if (!client.ValidateUserDestination()) continue;
@@ -52,7 +51,7 @@ namespace FTPizza
                     switch (input.ToLower())
                     {
                         case "l":
-                            client.list();
+                            client.List();
                             break;
                         case "lo":
                             client.Local();
@@ -61,22 +60,23 @@ namespace FTPizza
                             client.Get();
                             break;
                         case "p":
-                            client.put();
+                            List<string> uploadList = client.GetFilesToPut(); 
+                            client.Put(uploadList);
                             break;
                         case "d":
-                            client.delete();
+                            client.Delete();
                             break;
                         case "c":
-                            client.create_directory();
+                            client.CreateDirectory();
                             break;
                         case "dd":
-                            client.delete_directory();
+                            client.DeleteDirectory();
                             break;
                         case "q":
-                            client.quit();
+                            client.Quit();
                             break;
                         default:
-                            client.quit();
+                            client.Quit();
                             break;
                    }
                 }

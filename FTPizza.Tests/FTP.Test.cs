@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using System.IO;
 
 namespace FTPizza.Tests
 {
@@ -19,6 +20,13 @@ namespace FTPizza.Tests
             var client = new Ftp("", "", "speedtest.tele2.net/");
 
             Assert.That(client, Is.Not.Null);
+        }
+
+        [Test]
+        public void SuccessfulPutFileInToFtpServer()
+        {
+
+
         }
 
     }
