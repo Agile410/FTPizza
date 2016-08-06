@@ -67,10 +67,12 @@ namespace FTPizza
                             client.Delete();
                             break;
                         case "c":
-                            client.CreateDirectory();
+                            string toCreate = client.GetDirectoryToCreate();
+                            client.CreateDirectory(toCreate);
                             break;
                         case "dd":
-                            client.DeleteDirectory();
+                            string toDelete = client.GetDirectoryToDelete();
+                            client.DeleteDirectory(toDelete);
                             break;
                         case "q":
                             client.Quit();

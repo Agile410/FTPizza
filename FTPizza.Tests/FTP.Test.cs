@@ -50,5 +50,18 @@ namespace FTPizza.Tests
             Assert.That(client.currentRemDirFiles.Contains("UnitTestFile.txt"), Is.True);
         }
 
+        [Test]
+        public void SuccessfulDeleteDirectoryOnFtpServer()
+        {
+            client.CreateDirectory("UnitTestDirectory");
+
+            string toDelete = "UnitTestDirectory";
+
+            client.DeleteDirectory(toDelete);
+            client.FetchCurrentRemoteDirectoryItems();
+
+            Assert.That(client.currentRemDirFiles.Contains("UnitTestDirectory"), Is.False);
+        }
+
     }
 }

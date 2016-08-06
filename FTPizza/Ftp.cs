@@ -242,7 +242,7 @@ namespace FTPizza
             }
         }
 
-        public void CreateDirectory()
+        public string GetDirectoryToCreate()
         {
             Console.WriteLine("To create a directory: enter a directory name and then press 'Enter'.");
 
@@ -251,9 +251,14 @@ namespace FTPizza
             if (VerifyItem(input, currentRemDirFiles))
             {
                 Console.WriteLine("ERROR: " + input + " already exists.");
-                return;
+                string error = "";
+                return error;
             }
-  
+            return input;
+        }
+
+        public void CreateDirectory(string input)
+        { 
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
@@ -269,7 +274,7 @@ namespace FTPizza
             }
         }
 
-        public void DeleteDirectory()
+        public string GetDirectoryToDelete()
         {
             Console.WriteLine("To delete a directory: enter the name of an existing directory, and then press 'Enter'.");
 
@@ -278,8 +283,14 @@ namespace FTPizza
             if (!VerifyItem(input, currentRemDirFiles))
             {
                 Console.WriteLine("ERROR: " + input + " does not exist.");
-                return;
+                string error = "";
+                return error;
             }
+            return input;
+        }
+
+        public void DeleteDirectory(string input)
+        {
             Console.WriteLine("Deleting directory: " + input);
             try
             {
