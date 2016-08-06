@@ -14,12 +14,15 @@ namespace FTPizza
         public string _userUrl { get; set; }
         public List<string> currentRemDirFiles;
         public List<string> currentLocDirFiles;
+        public NetworkCredential Creds;
 
         public Ftp(string userName, string userPass, string userUrl)
         {
             _userName = userName;
             _userPass = userPass;
             _userUrl = userUrl;
+
+            Creds = new NetworkCredential(_userName, _userPass);
 
             FetchCurrentRemoteDirectoryItems();
             FetchCurrentLocalDirectoryItems();
@@ -31,7 +34,7 @@ namespace FTPizza
         public bool ValidateUserDestination()
         {
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
 
             try
             {
@@ -52,7 +55,7 @@ namespace FTPizza
         {
             // Connect to ftp server
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
             currentRemDirFiles = new List<string>();
 
             // Send request for directory files
@@ -142,7 +145,7 @@ namespace FTPizza
             foreach (string file in requestedFiles)
             {
                 WebClient request = new WebClient();
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 byte[] fileData = request.DownloadData("ftp://" + _userUrl + "/" + file);
                 using (FileStream writer = new FileStream(file, FileMode.Create))
@@ -179,7 +182,7 @@ namespace FTPizza
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
                     request.Method = WebRequestMethods.Ftp.UploadFile;
-                    request.Credentials = new NetworkCredential(_userName, _userPass);
+                    request.Credentials = Creds;
 
                     StreamReader sourceStream = new StreamReader(file);
                     byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
@@ -233,7 +236,7 @@ namespace FTPizza
             foreach (string file in deleteList)
             {
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.DeleteFile;
 
@@ -262,7 +265,7 @@ namespace FTPizza
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -295,7 +298,7 @@ namespace FTPizza
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.RemoveDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -310,7 +313,7 @@ namespace FTPizza
         {
             //Create a request object to ensure keepalive is false
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
             request.KeepAlive = false;
             request.Method = WebRequestMethods.Ftp.ListDirectory;
 
