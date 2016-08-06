@@ -12,8 +12,8 @@ namespace FTPizza
         public string _userName { get; set; }
         public string _userPass { get; set; }
         public string _userUrl { get; set; }
-        private List<string> currentRemDirFiles;
-        private List<string> currentLocDirFiles;
+        public List<string> currentRemDirFiles;
+        public List<string> currentLocDirFiles;
 
         public Ftp(string userName, string userPass, string userUrl)
         {
