@@ -12,8 +12,9 @@ namespace FTPizza
         public string _userName { get; set; }
         public string _userPass { get; set; }
         public string _userUrl { get; set; }
-        private List<string> currentRemDirFiles;
-        private List<string> currentLocDirFiles;
+        public List<string> currentRemDirFiles;
+        public List<string> currentLocDirFiles;
+        public NetworkCredential Creds;
 
         public Ftp(string userName, string userPass, string userUrl)
         {
@@ -21,8 +22,10 @@ namespace FTPizza
             _userPass = userPass;
             _userUrl = userUrl;
 
-            fetchCurrentRemoteDirectoryItems();
-            fetchCurrentLocalDirectoryItems();
+            Creds = new NetworkCredential(_userName, _userPass);
+
+            FetchCurrentRemoteDirectoryItems();
+            FetchCurrentLocalDirectoryItems();
         }
 
         /// <summary>
@@ -31,7 +34,7 @@ namespace FTPizza
         public bool ValidateUserDestination()
         {
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
 
             try
             {
@@ -48,11 +51,11 @@ namespace FTPizza
             }
         }
 
-        public void fetchCurrentRemoteDirectoryItems()
+        public void FetchCurrentRemoteDirectoryItems()
         {
             // Connect to ftp server
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
             currentRemDirFiles = new List<string>();
 
             // Send request for directory files
@@ -78,7 +81,7 @@ namespace FTPizza
         }
 
 
-        public void fetchCurrentLocalDirectoryItems()
+        public void FetchCurrentLocalDirectoryItems()
         {
             currentLocDirFiles = new List<string>();
 
@@ -100,12 +103,12 @@ namespace FTPizza
         }
 
 
-        public void list()
+        public void List()
         {
             // Print list of files
             try
             {
-                fetchCurrentRemoteDirectoryItems();
+                FetchCurrentRemoteDirectoryItems();
                 foreach (string file in currentRemDirFiles)
                 {
                     Console.WriteLine(file);
@@ -126,7 +129,7 @@ namespace FTPizza
             var requestedList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(requestedList, currentRemDirFiles);
+            ReadUserInput(requestedList, currentRemDirFiles);
 
             // Print list of requested files
             foreach (string file in requestedList)
@@ -142,7 +145,7 @@ namespace FTPizza
             foreach (string file in requestedFiles)
             {
                 WebClient request = new WebClient();
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 byte[] fileData = request.DownloadData("ftp://" + _userUrl + "/" + file);
                 using (FileStream writer = new FileStream(file, FileMode.Create))
@@ -153,14 +156,14 @@ namespace FTPizza
             }
         }
 
-        public void put()
+        public List<string> GetFilesToPut()
         {
             Console.WriteLine("To upload files, enter one filename per line." +
-                "\nWhen you are done, press '^' and then 'Enter'.");
+                              "\nWhen you are done, press '^' and then 'Enter'.");
             var uploadList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(uploadList, currentLocDirFiles);
+            ReadUserInput(uploadList, currentLocDirFiles);
 
             // Print list of requested files
             foreach (string file in uploadList)
@@ -168,13 +171,18 @@ namespace FTPizza
                 Console.WriteLine("Upload List: " + file);
             }
 
+            return uploadList;
+        }
+
+        public void Put(List<string> uploadList)
+        {
             foreach (string file in uploadList)
             {
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
                     request.Method = WebRequestMethods.Ftp.UploadFile;
-                    request.Credentials = new NetworkCredential(_userName, _userPass);
+                    request.Credentials = Creds;
 
                     StreamReader sourceStream = new StreamReader(file);
                     byte[] fileContents = Encoding.UTF8.GetBytes(sourceStream.ReadToEnd());
@@ -196,12 +204,12 @@ namespace FTPizza
             }
         }
 
-        private void GetFiles(ICollection<string> requestList, ICollection<string> DirList)
+        private void ReadUserInput(ICollection<string> requestList, ICollection<string> DirList)
         {
             string input = Console.ReadLine();
             while (input != "^")
             {
-                if (verifyItem(input, DirList))
+                if (VerifyItem(input, DirList))
                 {
                     requestList.Add(input);
                 }
@@ -210,14 +218,14 @@ namespace FTPizza
             }
         }
 
-        public void delete()
+        public void Delete()
         {
             Console.WriteLine("To delete files, enter one filename per line." +
                            "\nWhen you are done, press '^' and then 'Enter'.");
             var deleteList = new List<string>();
 
             // Read user submitted file names and add to list
-            GetFiles(deleteList, currentRemDirFiles);
+            ReadUserInput(deleteList, currentRemDirFiles);
 
             // Print list of requested files
             foreach (string file in deleteList)
@@ -228,7 +236,7 @@ namespace FTPizza
             foreach (string file in deleteList)
             {
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.DeleteFile;
 
@@ -237,22 +245,27 @@ namespace FTPizza
             }
         }
 
-        public void create_directory()
+        public string GetDirectoryToCreate()
         {
             Console.WriteLine("To create a directory: enter a directory name and then press 'Enter'.");
 
             string input = Console.ReadLine();
 
-            if (verifyItem(input, currentRemDirFiles))
+            if (VerifyItem(input, currentRemDirFiles))
             {
                 Console.WriteLine("ERROR: " + input + " already exists.");
-                return;
+                string error = "";
+                return error;
             }
-  
+            return input;
+        }
+
+        public void CreateDirectory(string input)
+        { 
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.MakeDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
@@ -264,37 +277,52 @@ namespace FTPizza
             }
         }
 
-        public void delete_directory()
+        public string GetDirectoryToDelete()
         {
             Console.WriteLine("To delete a directory: enter the name of an existing directory, and then press 'Enter'.");
 
             string input = Console.ReadLine();
 
-            if (!verifyItem(input, currentRemDirFiles))
+            try
             {
-                Console.WriteLine("ERROR: " + input + " does not exist.");
-                return;
+                if (!VerifyItem(input, currentRemDirFiles))
+                {
+                    Console.WriteLine("ERROR: " + input + " does not exist.");
+                    string error = "";
+                    return error;
+                }
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+
+            return input;
+        }
+
+        public void DeleteDirectory(string input)
+        {
+            if (input == null)
+            {
+                throw new Exception("ERROR: no directory name submitted.");
             }
             Console.WriteLine("Deleting directory: " + input);
             try
             {
                 var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + input);
-                request.Credentials = new NetworkCredential(_userName, _userPass);
+                request.Credentials = Creds;
 
                 request.Method = WebRequestMethods.Ftp.RemoveDirectory;
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
-                currentRemDirFiles.Add(input);
+                currentRemDirFiles.Remove(input);
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
         }
 
-        public void quit()
+        public void Quit()
         {
             //Create a request object to ensure keepalive is false
             FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl);
-            request.Credentials = new NetworkCredential(_userName, _userPass);
+            request.Credentials = Creds;
             request.KeepAlive = false;
             request.Method = WebRequestMethods.Ftp.ListDirectory;
 
@@ -307,7 +335,7 @@ namespace FTPizza
         {
             try
             {
-                fetchCurrentLocalDirectoryItems();
+                FetchCurrentLocalDirectoryItems();
                 foreach (string file in currentLocDirFiles)
                 {
                     Console.WriteLine(file);
@@ -320,7 +348,7 @@ namespace FTPizza
             }
         }
 
-        private bool verifyItem(string item, ICollection<string> list)
+        private bool VerifyItem(string item, ICollection<string> list)
         {
             bool found = false;
        
