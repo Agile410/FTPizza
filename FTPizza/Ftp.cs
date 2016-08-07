@@ -313,7 +313,7 @@ namespace FTPizza
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
-                currentRemDirFiles.Add(input);
+                currentRemDirFiles.Remove(input);
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
         }
