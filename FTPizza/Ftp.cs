@@ -283,17 +283,26 @@ namespace FTPizza
 
             string input = Console.ReadLine();
 
-            if (!VerifyItem(input, currentRemDirFiles))
+            try
             {
-                Console.WriteLine("ERROR: " + input + " does not exist.");
-                string error = "";
-                return error;
+                if (!VerifyItem(input, currentRemDirFiles))
+                {
+                    Console.WriteLine("ERROR: " + input + " does not exist.");
+                    string error = "";
+                    return error;
+                }
             }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+
             return input;
         }
 
         public void DeleteDirectory(string input)
         {
+            if (input == null)
+            {
+                throw new Exception("ERROR: no directory name submitted.");
+            }
             Console.WriteLine("Deleting directory: " + input);
             try
             {

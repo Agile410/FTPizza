@@ -52,6 +52,14 @@ namespace FTPizza.Tests
         }
 
         [Test]
+        public void UnsuccessfulPutFileInToFtpServer()
+        {
+            List<string> uploadList = null;
+
+            Assert.That(() => client.Put(uploadList), Throws.Exception);
+        }
+
+        [Test]
         public void SuccessfulDeleteDirectoryOnFtpServer()
         {
             client.CreateDirectory("UnitTestDirectory");
@@ -63,6 +71,15 @@ namespace FTPizza.Tests
 
             Assert.That(client.currentRemDirFiles, Has.No.Member("UnitTestDirectory"));
         }
+
+        [Test]
+        public void UnsuccessfulDeleteDirectoryOnFtpServer()
+        {
+            string toDelete = null;
+
+            Assert.That(() => client.DeleteDirectory(toDelete), Throws.Exception);
+        }
+
 
     }
 }
