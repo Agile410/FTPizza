@@ -26,7 +26,7 @@ namespace FTPizza.Tests
         [Test]
         public void LoginToFtpWithBadLogin()
         {
-            //Needs a more specific exception
+            // TODO: Needs a more specific exception
             Assert.That(() => new Ftp(null, null, null), Throws.Exception);
         }
 
@@ -43,11 +43,12 @@ namespace FTPizza.Tests
         {
             List<string> uploadList = new List<string>();
 
+            // Make sure file UnitTestFile.txt exists locally in FTPizza\FTPizza.Tests\bin\Debug before executing tests
             uploadList.Add("UnitTestFile.txt");    
             client.Put(uploadList);
             client.FetchCurrentRemoteDirectoryItems();
 
-            Assert.That(client.currentRemDirFiles.Contains("UnitTestFile.txt"), Is.True);
+            Assert.That(client.currentRemDirFiles, Has.Member("UnitTestFile.txt"));
         }
 
         [Test]
@@ -60,7 +61,7 @@ namespace FTPizza.Tests
             client.DeleteDirectory(toDelete);
             client.FetchCurrentRemoteDirectoryItems();
 
-            Assert.That(client.currentRemDirFiles.Contains("UnitTestDirectory"), Is.False);
+            Assert.That(client.currentRemDirFiles, Has.No.Member("UnitTestDirectory"));
         }
 
     }
