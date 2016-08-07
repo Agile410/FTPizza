@@ -47,10 +47,11 @@ namespace FTPizza.Tests
         public void SuccessfulPutFileInToFtpServer()
         {
             var upload_client = new Ftp("", "", "speedtest.tele2.net/upload");
-            List<string> uploadList = new List<string>();
+            List<string> uploadList = new List<string> { "UnitTestFile.txt" };
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + @"\UnitTestFile.txt";
+            System.IO.StreamWriter sw = System.IO.File.AppendText(path);
+            sw.Close();
 
-            // Make sure file UnitTestFile.txt exists locally in FTPizza\FTPizza.Tests\bin\Debug before executing tests
-            uploadList.Add("UnitTestFile.txt");
             upload_client.Put(uploadList);
 
             Assert.That(upload_client.currentRemDirFiles, Has.Member("UnitTestFile.txt"));
@@ -87,6 +88,7 @@ namespace FTPizza.Tests
         public void TearDown()
         {
             System.IO.File.Delete("512KB.zip");
+            System.IO.File.Delete("UnitTestFile.txt");
         }
     }
 }
