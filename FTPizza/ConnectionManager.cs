@@ -13,6 +13,7 @@ namespace FTPizza
 
         private string[] connectionFile;
         private List<string> connectionInfo;
+        private List<string> userList;
         private string ftpUrl;
         private string ftpUsername;
         private string ftpPassword;
@@ -55,33 +56,53 @@ namespace FTPizza
                 Console.WriteLine("\n/////////////////////////////////////");
                 Console.WriteLine("The following users are available:");
                 Console.WriteLine();
-                foreach (string item in connectionFile)
+                //Load data from file to List connectionInfo and userList
+                GetUserList();
+                foreach(string item in userList)
                 {
-                    if (item.Contains("user="))
-                    {
-                        Console.WriteLine("--> '" + item.Replace("user=", "") + "'");
-                    }
+                    Console.WriteLine("--> '" + item + "'");
                 }
                 Console.WriteLine();
             }
         }
 
-        public void selectUser()
+        private void GetUserList()
         {
             connectionInfo = new List<string>();
-
-            if(!newUser && connectionFile.Length > 0)
-            {
-                Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
-                answer = Console.ReadLine();
-            }
+            userList = new List<string>();
 
             foreach (string item in connectionFile)
             {
                 connectionInfo.Add(item);
+                if (item.Contains("user="))
+                {
+                    //Update user list
+                    userList.Add(item.Replace("user=", ""));
+                }
+            }
+        }
+
+        private void RequstUserName()
+        {
+            Console.WriteLine("Enter the name of the user you'd like to connect with, \notherwise enter 'create' to create a new user: ");
+            answer = Console.ReadLine();
+        }
+
+        public void selectUser()
+        {
+
+            if (!newUser && connectionFile.Length > 0)
+            {
+                RequstUserName();
             }
 
-            if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
+            if (!userList.Contains(answer) && !answer.Equals("create"))
+            {
+                Console.WriteLine("Error: --->>> User name "+ answer + " not found! Type 'Create' to make new user!");
+                Console.WriteLine("---------------------------------------------------------");
+                selectUser();
+            }
+            else if (newUser || connectionFile.Length < 3 || answer.Equals("create"))
             {
                 Console.WriteLine("/////////////////////////////////////");
                 Console.WriteLine("Creating a new user...");
@@ -93,6 +114,14 @@ namespace FTPizza
                 Console.WriteLine("Enter the username for the FTP Server:");
                 ftpUsername = Console.ReadLine();
                 connectionInfo.Add("user=" + ftpUsername);
+                ///Check if user exist. If true ask user again to type once more
+                while (userList.Contains(ftpUsername))
+                {
+                    Console.WriteLine("Error --->>> User with this name already exist!!! Try again...");
+                    Console.WriteLine("--------------------------------------");
+                    Console.WriteLine("Enter the username for the FTP Server:");
+                    ftpUsername = Console.ReadLine();
+                }
                 selectedUser = ftpUsername;
 
                 Console.WriteLine("Enter the password for the FTP Server:");
@@ -100,7 +129,7 @@ namespace FTPizza
                 connectionInfo.Add("pass=" + ftpPassword);
 
             }
-            else
+            else 
             {
                 selectedUser = answer;
             }
