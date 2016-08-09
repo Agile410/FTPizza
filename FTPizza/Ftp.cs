@@ -44,7 +44,7 @@ namespace FTPizza
                 response.Close();
                 return true;
             }
-            catch (WebException e)
+            catch (WebException)
             {
                 Console.WriteLine("ERROR: Failed to connect to ftp server. Check credentials and try again...");
                 return false;
@@ -271,6 +271,8 @@ namespace FTPizza
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
 
                 response.Close();
+
+                currentRemDirFiles.Add(input);
             }
             catch (Exception e) {
                 Console.WriteLine(e.ToString());
