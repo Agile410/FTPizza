@@ -144,6 +144,12 @@ namespace FTPizza
         {
             foreach (string file in requestedFiles)
             {
+                if (IsDir(file))
+                {
+                    Console.WriteLine("Cant download directory " + file + " !...");
+                    continue;
+                }
+
                 WebClient request = new WebClient();
                 request.Credentials = Creds;
 
@@ -178,6 +184,11 @@ namespace FTPizza
         {
             foreach (string file in uploadList)
             {
+                if (IsDir(file))
+                {
+                    Console.WriteLine("Cant upload directory " + file + " !...");
+                    continue;
+                }
                 try
                 {
                     var request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
