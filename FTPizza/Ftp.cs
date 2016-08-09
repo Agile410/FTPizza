@@ -235,6 +235,11 @@ namespace FTPizza
 
             foreach (string file in deleteList)
             {
+                // skip dirrectories in file list
+                if (IsDir(file)) {
+                    Console.WriteLine("Skipping directory " + file + " from deletion!...");
+                    continue;
+                }
                 FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
                 request.Credentials = Creds;
 
@@ -243,6 +248,12 @@ namespace FTPizza
                 FtpWebResponse response = (FtpWebResponse)request.GetResponse();
                 response.Close();
             }
+        }
+
+        //Check for extention in file
+        public bool IsDir(string ftpPath)
+        {
+            return Path.GetExtension(ftpPath) == string.Empty;
         }
 
         public string GetDirectoryToCreate()
