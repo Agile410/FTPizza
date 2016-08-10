@@ -64,7 +64,8 @@ namespace FTPizza
                             client.Put(uploadList);
                             break;
                         case "d":
-                            client.Delete();
+                            List<string> deleteList = client.GetFilesToDelete();
+                            client.Delete(deleteList);
                             break;
                         case "c":
                             string toCreate = client.GetDirectoryToCreate();

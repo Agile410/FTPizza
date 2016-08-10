@@ -229,10 +229,10 @@ namespace FTPizza
             }
         }
 
-        public void Delete()
+        public List<String> GetFilesToDelete()
         {
             Console.WriteLine("To delete files, enter one filename per line." +
-                           "\nWhen you are done, press '^' and then 'Enter'.");
+               "\nWhen you are done, press '^' and then 'Enter'.");
             var deleteList = new List<string>();
 
             // Read user submitted file names and add to list
@@ -244,20 +244,33 @@ namespace FTPizza
                 Console.WriteLine("Delete List: " + file);
             }
 
+            return deleteList;
+        }
+
+        public void Delete(List<string> deleteList)
+        {
+            if (deleteList == null)
+            {
+                throw new Exception("ERROR: no filename submitted.");
+            }
             foreach (string file in deleteList)
             {
-                // skip dirrectories in file list
-                if (IsDir(file)) {
-                    Console.WriteLine("Skipping directory " + file + " from deletion!...");
-                    continue;
+                try {
+                    Console.WriteLine("Deleting filename: " + file);
+                    // skip dirrectories in file list
+                    if (IsDir(file)) {
+                        Console.WriteLine("Skipping directory " + file + " from deletion!...");
+                        continue;
+                    }
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
+                    request.Credentials = Creds;
+
+                    request.Method = WebRequestMethods.Ftp.DeleteFile;
+
+                    FtpWebResponse response = (FtpWebResponse)request.GetResponse();
+                    response.Close();
                 }
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + _userUrl + "/" + file);
-                request.Credentials = Creds;
-
-                request.Method = WebRequestMethods.Ftp.DeleteFile;
-
-                FtpWebResponse response = (FtpWebResponse)request.GetResponse();
-                response.Close();
+                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             }
         }
 
