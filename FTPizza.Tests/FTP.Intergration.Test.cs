@@ -66,6 +66,26 @@ namespace FTPizza.Tests
         }
 
         [Test]
+        public void SuccessfulDeleteFileOnFtpServer()
+        {
+            var upload_client = new Ftp("", "", "speedtest.tele2.net/upload");
+            List<string> uploadList = new List<string> { "UnitTestFileToDelete.txt" };
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + @"\UnitTestFileToDelete.txt";
+            System.IO.StreamWriter sw = System.IO.File.AppendText(path);
+            sw.Close();
+
+            upload_client.Put(uploadList);
+
+            Assert.That(upload_client.currentRemDirFiles, Has.Member("UnitTestFileToDelete.txt"));
+
+            var deleteList = new List<string> { "UnitTestFileToDelete.txt" };
+
+            client.Delete(deleteList);
+
+            Assert.That(client.currentRemDirFiles, Has.No.Member("UnitTestFileToDelete.txt"));
+        }
+
+        [Test]
         public void SuccessfulDeleteDirectoryOnFtpServer()
         {
             client.CreateDirectory("UnitTestDirectory");
